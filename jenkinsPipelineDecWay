@@ -1,0 +1,40 @@
+pipeline{
+
+agent any{
+
+tools{
+maven "maven3.8.6"
+}
+
+stages{
+
+stage('checkout'){
+steps{
+git branch: 'development', credentialsId: 'f43de536-2e4c-4ca0-921e-ac9c264103be', url: 'https://github.com/mss-ec-apps-nov21/maven-web-application.git'
+}
+}
+stage('buid'){
+steps{
+sh "mvn clean package"
+}
+}
+stage('exesonarReport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+stage('uploadIntoArtifactRepo'){
+steps{
+sh "mvn clean deploy"
+}
+}
+stage('deployIntoTomcat'){
+steps{
+sh sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war" ec2-user@65.2.10.157:/opt/apache-tomcat-9.0.64/webapps
+
+}
+}
+
+}
+}
+}
